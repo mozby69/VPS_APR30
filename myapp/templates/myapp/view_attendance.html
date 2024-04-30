@@ -1,0 +1,124 @@
+{% extends "myapp/base.html" %}
+{% load static %}
+
+{% block content %}
+  {% include 'myapp/navbar.html' %}
+
+  <style>
+    .dt-layout-row{
+      text-align:center;
+    }
+    #dt-length-0{
+      display:none;
+    }
+    label[for="dt-length-0"] {
+      display:none;
+    }
+    #dt-search-0{
+      padding:.4rem;
+    }
+    .dt-search{
+      float:right;
+      margin-right:1rem;
+    }
+    
+    .dt-input{
+      margin-top:.1rem;
+      margin-left:1rem;
+      margin-bottom:.7rem;
+      border-radius:.5rem;
+      padding:.2rem;
+    }
+    .dt-paging-button{
+      padding:.4rem 1rem;
+      background-color:#55AF5A;
+      color:white;
+      font-weight:bold;
+      border:2px solid white;
+    }
+
+
+    .ellipsis{
+      padding:.4rem 1rem;
+      background-color:#55AF5A;
+      color:white;
+      font-weight:bold;
+      border:2px solid white;
+    }
+  </style>
+
+  <div class="content-wrapper">
+    <div class="container-fluid">
+        <div class="row pt-2 pb-2">
+            <div class="col-sm-12 mt-3">
+                <h2 class="page-title" style="color:#55AF5A;font-weight:bold;">EMPLOYEE ATTENDANCE</h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+
+         
+
+                  <div class="table-container card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="defaultdatatable" class="table table-bordered table-hover table-striped tables">
+                                <thead>
+                                    <tr>
+                                    
+                                        <th>BRANCH NAME</th>
+                                        <th>NAME</th>
+                                        <th>DATE</th>
+                                        <th>TIMEIN</th>
+                                        <th>BREAKOUT</th>
+                                        <th>BREAKIN</th>
+                                        <th>TIMEOUT</th>
+                                
+                                       
+                                    </tr>
+                                </thead>
+                                <tbody>
+                              
+                  
+                                  
+                                    {% for record in data %}
+                                    <tr>
+
+                                      <td>{{ record.user_branchname }}</td> 
+                                      <td>{{ record.Empname }}</td>
+                                      <td>{{record.date }}</td>
+                                      <td>{{record.timein }}</td>
+                                      <td>{{record.breakout }}</td>
+                                      <td>{{record.breakin }}</td>
+                                      <td>{{record.timeout }}</td>
+                                    
+                                    
+
+                                    </tr>
+                                    {% endfor %}
+
+                                      
+                            
+                        </div>
+
+                    </div>
+                    </div>
+
+
+                    <script>
+                        $(document).ready(function() {
+                            $('#defaultdatatable').DataTable({
+                                searching: true,
+                                pageLength:7,
+                                //order: [[0, 'desc']],
+                                
+                            });
+                        });
+              </script>
+                      
+
+              
+
+{% endblock content %}

@@ -1,0 +1,325 @@
+
+{% extends "myapp/base.html" %}
+{% load static %}
+{% block content %}
+  {% include 'myapp/navbar.html' %}
+
+
+
+
+
+
+  <div class="content-wrapper">
+    <div class="container-fluid">
+        <div class="row pt-2 pb-2">
+            <div class="col-sm-12 mt-3">
+                <h2 class="page-title" style="color:#55AF5A;font-weight:bold;">EMPLOYEE LIST</h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <div class="row">
+                            <div class="col-lg-10">
+                                <div class="d-flex justify-content-start">
+                                    <button style="background-color:#55AF5A;color:white;font-weight:bold;" type="button" class="btn btn-round waves-effect waves-light m-1" data-bs-toggle="modal" data-bs-target="#addQRModal">
+                                        <i class="fa fa-plus"></i> <span>&nbsp;ADD NEW RECORD</span>
+                                    </button>
+
+                   
+
+                                </div>  
+                            </div>
+                        </div>
+                                      
+                        
+
+                    </div>
+
+                  <div class="table-container card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="defaultdatatable" class="table table-bordered table-hover table-striped tables">
+                                <thead>
+                                    <tr>
+                                    
+
+                                        <th>CODE</th>
+                                        <th>FIRSTNAME</th>
+                                        <th>MIDDLENAME</th>
+                                        <th>LASTNAME</th>
+                                        <th>QR IMAGE</th>
+                                        <th>ACTIONS</th>
+                                       
+                                    </tr>
+                                </thead>
+                                <tbody>
+                              
+                                  {% for qr in qr_list %}
+                                  
+
+                                    <tr>
+
+                                      <td>{{ qr.EmpCode }}</td>
+                                      <td>{{ qr.Firstname }}</td>
+                                      <td>{{ qr.Middlename }}</td>
+                                      <td>{{ qr.Lastname }}</td>
+
+                                      <td>
+                                        {% if qr.qr_code %}
+                                        <img src="{{ qr.qr_code.url }}" alt="QR Code" width="50px" height="50px">
+                                        
+                                      {% else %}
+                                         
+                                          <p>NO IMAGE</p>
+                                      {% endif %}
+                                      </td>
+                                    
+                            
+                                    
+                                      <td style="vertical-align:middle;">
+                                      <a class="material-symbols-outlined btn btn-success" data-bs-toggle="modal" data-bs-target="#view_qr_{{qr.EmpCode}}"> wysiwyg </a>                                                                  
+                                      <span class="material-symbols-outlined btn btn-primary edit-btn" data-bs-toggle="modal" data-bs-target="#updateQREmployeeModal_{{qr.EmpCode}}"> edit </span>
+                                      <span class="material-symbols-outlined btn btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModalQR_{{qr.EmpCode}}"> delete </span>        
+                                      </td>
+
+                                    </tr>
+
+                                      
+                            
+                        </div>
+
+
+
+
+</div>
+</div>
+
+
+
+
+
+
+<!-- update qr list modal -->
+<div class="modal fade" id="updateQREmployeeModal_{{ qr.EmpCode }}" tabindex="-1" aria-labelledby="updateQREmployeeModal_{{qr.EmpCode}}" aria-hidden="true">
+    <div class="modal-dialog">
+      <form action="" method="post">
+        {% csrf_token %}
+   
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="updateQREmployeeModal_{{ qr.EmpCode}}">Edit Employee</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id" value="{{qr.EmpCode}}">
+
+          <div class="" style="display:none;">
+            <label for="name" >EMPCODE</label>
+            <input type="text" name="EmpCode" class="form-control" value="{{qr.EmpCode}}" id="EmpCode" required>
+          </div>
+
+          <div class="">
+            <label for="name" >Firstname</label>
+            <input type="text" name="Firstname" class="form-control" value="{{qr.Firstname }}" id="Firstname" required>
+          </div>
+
+          <div class="">
+            <label for="name" >Middlename</label>
+            <input type="text" name="Middlename" class="form-control" value="{{qr.Middlename }}" id="Middlename" required>
+          </div>
+
+          <div class="">
+            <label for="name" >Lastname</label>
+            <input type="text" name="Lastname" class="form-control" value="{{qr.Lastname }}" id="Lastname" required>
+          </div>
+          
+
+      
+     
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" name="update" data-user-id="{{ qr.EmpCode }}">Update Name</button>
+        </div>
+      </div>
+    </form>
+    </div>
+  </div>
+
+
+
+
+
+<!-- QR MODAL VIEW -->
+<div class="modal fade" id="view_qr_{{ qr.EmpCode }}" tabindex="-1" aria-labelledby="view_qr_{{qr.EmpCode}}" aria-hidden="true">
+    <div class="modal-dialog">
+      <form action="" method="post">
+        {% csrf_token %}
+   
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5"></h1>
+
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id" value="{{qr.EmpCode}}">
+  
+          <div class="container" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="image-container">
+             
+
+            </div>
+
+            <div class="title-qr">
+              <h2 style="position:relative;top:1rem;">{{ qr.Firstname }}</h2>
+            </div>
+
+            <form action="" method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+            <div class="image-container2" style="text-align: center;">
+              {% if qr.qr_code %}
+                  <img src="{{ qr.qr_code.url }}" alt="QR Code" width="340px" height="340px">
+                  <a class="qr_button" href="{{ qr.qr_code.url }}" download="qr_code_image.png">
+                      <button type="button" style="margin-bottom:1rem;border-radius: .5rem;padding: .7rem 1rem;background-color: #5EA061;color:#FFFFFF;font-size:1.2rem;font-weight:bold;border:none;">Download QR</button>
+                  </a>
+              {% else %}
+                  <img src="{% static 'images/no_image.jpg' %}"  width="300px" height="300px" style="position:relative;top:.6rem;padding:1rem;">
+                
+                 
+              {% endif %}
+          </div>
+        </form>
+          
+          
+          
+        </div>
+        
+
+      
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+       
+        </div>
+      </div>
+    </form>
+    </div>
+  </div>
+
+
+
+
+   <!-- delete MODAL qr EMPLOYEE -->
+      <div class="modal fade" id="deleteEmployeeModalQR_{{qr.EmpCode}}" tabindex="-1" aria-labelledby="deleteEmployeeModalQR_{{qr.EmpCode}}" aria-hidden="true">
+        <div class="modal-dialog">
+          <form action="" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="EmpCode" value="{{qr.EmpCode}}">
+        
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="deleteEmployeeModalQR_{{qr.EmpCode}}">Delete Employee QR</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+             
+              <p>are you sure you want to delete - <span style="font-weight:bold;">{{ qr.Firstname }}?</span></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-danger" name="delete">delete student</button>
+            </div>
+          </div>
+        </form>
+        </div>
+    
+      </div>
+
+
+
+
+      {% endfor %}
+
+    </tbody>
+  </table>
+
+
+<!-- ADD NEW QR Modal -->
+<!-- ADD NEW QR Modal -->
+<div class="modal fade" id="addQRModal" tabindex="-1" aria-labelledby="addQRModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <form action="" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="addQRModal">EMPLOYEE QR LIST</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="">
+          <label for="EmpCode" >EMPCODE</label>
+          <input type="text" name="EmpCode" class="form-control" id="EmpCode" required>
+        </div>
+
+        <div class="">
+          <label for="firstname" >Firstname</label>
+          <input type="text" name="Firstname" class="form-control" id="Firstname" required>
+        </div>
+
+        <div class="">
+          <label for="middlename" >Middlename</label>
+          <input type="text" name="Middlename" class="form-control" id="Middlename" required>
+        </div>
+
+        <div class="">
+          <label for="lastname" >Lastname</label>
+          <input type="text" name="Lastname" class="form-control" id="Lastname" required>
+        </div>
+
+      </div>
+
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary" name="addQR">SAVE RECORD</button>
+      </div>
+    </div>
+  </form>
+  </div>
+</div>
+
+
+
+
+
+
+</div>
+
+
+
+
+
+  <script>
+            $(document).ready(function() {
+                $('#defaultdatatable').DataTable({
+                    searching: true,
+                    pageLength:7,
+                });
+            });
+  </script>
+          
+
+
+{% endblock content %}
+
+
+

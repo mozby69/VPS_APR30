@@ -1,0 +1,268 @@
+
+{% extends "myapp/base.html" %}
+{% load static %}
+{% block content %}
+  {% include 'myapp/navbar.html' %}
+
+
+
+
+
+
+  <div class="content-wrapper">
+    <div class="container-fluid">
+        <div class="row pt-2 pb-2">
+            <div class="col-sm-12 mt-3">
+                <h2 class="page-title" style="color:#55AF5A;font-weight:bold;">EMPLOYEE LIST</h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+
+                    <div class="card-header">
+{% comment %} 
+                        <div class="row">
+                            <div class="col-lg-10">
+                                <div class="d-flex justify-content-start">
+                                    <button style="background-color:#55AF5A;color:white;font-weight:bold;" type="button" class="btn btn-round waves-effect waves-light m-1" data-bs-toggle="modal" data-bs-target="#addQRModal">
+                                        <i class="fa fa-plus"></i> <span>&nbsp;ADD NEW RECORD</span>
+                                    </button>
+
+                   
+
+                                </div>  
+                            </div>
+                        </div> {% endcomment %}
+                                      
+                        
+
+                    </div>
+
+                  <div class="table-container card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table style="font-size:.8rem;" id="defaultdatatable" class="table table-bordered table-hover table-striped tables">
+                                <thead>
+                                    <tr>
+                                    
+                                        <th>id</th>
+                                        <th>EMPNAME</th>
+                                        <th>DATE</th>
+                                        <th>TIMEIN NAMES</th>
+                                        <th>BREAKOUT NAME</th>
+                                        <th>BREAKIN NAMES</th>
+                                        <th>TIMEOUT NAMES</th>
+                                        <th>TIMEIN TIMESTAMPS</th>
+                                        <th>BREAKOUT TIMESTAMPS</th>
+                                        <th>BREAKIN TIMESTAMPS</th>
+                                        <th>TIMEOUT TIMESTAMPS</th>
+                                        <th>LOGIN STATUS</th>
+                                        <th>ACTIONS</th>
+                                     
+                                      
+                                       
+                                    </tr>
+                                </thead>
+                                <tbody>
+                              
+                                  {% for list in employee_list %}
+                                  
+
+                                    <tr>
+                                      <td>{{list.id}}</td>
+                                      <td>{{ list.Empname}}</td>
+                                      <td>{{ list.date }} </td>
+                                      <td>{{ list.timein_names }}</td>
+                                      <td>{{ list.breakout_names }}</td>
+                                      <td>{{ list.breakin_names }}</td>
+                                      <td>{{ list.timeout_names }}</td>
+                                      <td>{{ list.timein_timestamps }}</td>
+                                      <td>{{ list.breakout_timestamps }}</td>
+                                      <td>{{ list.breakin_timestamps }}</td>
+                                      <td>{{ list.timeout_timestamps }}</td>
+                                      <td>{{ list.login_status }}</td>
+                                      <td> 
+                                        <span class="material-symbols-outlined btn btn-primary edit-btn" data-bs-toggle="modal" data-bs-target="#updateQREmployeeModal_{{list.id}}">
+                                            edit
+                                        </span>
+                                           
+                                        <span class="material-symbols-outlined btn btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModalQR_{{list.id}}">
+                                        delete
+                                        </span>
+                                      </td>
+                             
+                                    
+                              
+                                    
+                    
+
+                                    </tr>
+
+                         
+                            
+                        </div>
+
+
+
+
+</div>
+</div>
+
+  <!-- delete MODAL qr EMPLOYEE -->
+  <div class="modal fade" id="deleteEmployeeModalQR_{{list.id}}" tabindex="-1" aria-labelledby="deleteEmployeeModalQR_{{list.id}}" aria-hidden="true">
+    <div class="modal-dialog">
+      <form action="{% url 'main_temp' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{list.id}}">
+    
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="deleteEmployeeModalQR_{{list.id}}">Delete Employee QR</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+         
+          <p>are you sure you want to delete - <span style="font-weight:bold;">{{list.Empname}}?</span></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-danger" name="delete">delete employee</button>
+        </div>
+      </div>
+    </form>
+    </div>
+  </div>
+
+  </div>
+
+
+
+
+
+{% comment %} edit {% endcomment %}
+<div class="modal fade" id="updateQREmployeeModal_{{ list.id }}" tabindex="-1" aria-labelledby="updateQREmployeeModal_{{list.id}}" aria-hidden="true">
+    <div class="modal-dialog">
+      <form action="" method="post">
+        {% csrf_token %}
+   
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="updateQREmployeeModal_{{ list.id}}">Edit Employee</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id" value="{{list.id}}">
+
+        <div class="row">
+        <div class= "col-6">
+            
+          <div class="">
+            <label for="Empname" >Name</label>
+            <input type="text" name="Empname" class="form-control" value="{{list.Empname}}" id="Empname" >
+          </div>
+
+          <div class="">
+            <label for="timein_names" >TIMEIN NAMES</label>
+            <input type="text" name="timein_names" class="form-control" value="{{list.timein_names|default_if_none:''}}" id="timein_names" >
+          </div>
+          
+          <div class="">
+            <label for="breakout_names" >BREAKOUT NAMES</label>
+            <input type="text" name="breakout_names" class="form-control" value="{{list.breakout_names|default_if_none:''}}" id="breakout_names" >
+          </div>
+
+          <div class="">
+            <label for="breakin_names" >BREAKIN NAMES</label>
+            <input type="text" name="breakin_names" class="form-control" value="{{list.breakin_names|default_if_none:''}}" id="breakin_names" >
+          </div>
+
+          <div class="">
+            <label for="timeout_names" >TIMEOUT NAMES</label>
+            <input type="text" name="timeout_names" class="form-control" value="{{list.timeout_names|default_if_none:''}}" id="timeout_names" >
+          </div>
+
+        </div>
+
+        <div class="col-6">
+
+          <div class="">
+            <label for="timein_timestamps" >TIMEIN TIMESTAMPS</label>
+            <input type="text" name="timein_timestamps" class="form-control" value="{{list.timein_timestamps|date:'Y-m-d h:i A'}}" id="timein_timestamps" >
+          </div>
+          
+          <div class="">
+            <label for="breakout_timestamps" >BREAKOUT TIMESTAMPS</label>
+            <input type="text" name="breakout_timestamps" class="form-control" value="{{list.breakout_timestamps|date:'Y-m-d h:i A'}}" id="breakout_timestamps" >
+          </div>
+
+          <div class="">
+            <label for="breakin_timestamps" >BREAKIN TIMESTAMPS</label>
+            <input type="text" name="breakin_timestamps" class="form-control" value="{{list.breakin_timestamps|date:'Y-m-d h:i A'}}" id="breakin_timestamps" >
+          </div>
+
+          <div class="">
+            <label for="timeout_timestamps" >TIMEOUT TIMESTAMPS</label>
+            <input type="text" name="timeout_timestamps" class="form-control" value="{{list.timeout_timestamps|date:'Y-m-d h:i A'}}" id="timeout_timestamps" >
+          </div>
+          
+        </div>
+
+          
+
+      
+     
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" name="update" data-user-id="{{ list.id }}">update student</button>
+        </div>
+      </div>
+    </form>
+    </div>
+  </div>
+
+
+
+
+
+
+ 
+
+
+
+
+      {% endfor %}
+
+    </tbody>
+  </table>
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+
+  <script>
+            $(document).ready(function() {
+                $('#defaultdatatable').DataTable({
+                    searching: true,
+                    pageLength:7,
+                });
+            });
+  </script>
+          
+
+
+{% endblock content %}
+
+
+

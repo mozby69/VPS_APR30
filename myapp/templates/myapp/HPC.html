@@ -1,0 +1,329 @@
+<!-- qr_scanner.html -->
+
+{% extends "myapp/base.html" %}
+{% load static %}
+{% block content %}
+
+
+
+<style>
+    .table-container {
+        max-height: 490px;
+        overflow-y: auto;
+        
+    }
+    .toastSize {
+        font-size: 1.3rem;
+        font-weight: bold;
+        padding: 1.1rem 1.1rem;
+        border:5px solid white;
+        position:relative;
+        top:3rem;
+      }
+
+      .toast-success {
+        color: white;
+        font-weight:bold;
+        font-size:1.1rem;
+        border:5px solid white;
+      }
+  
+      .toast-error {
+        background-color: red;
+        color: white;
+        font-weight:bold;
+        font-size:1.1rem;
+        border:5px solid white;
+      }
+      .toast-top-right {
+        top: 4rem;
+        right:1rem;
+        float:right;
+      }
+
+    #error-message {
+        position: absolute;
+        top: 3.4rem;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: none;
+        background-color: red;
+        color: white;
+        font-size: 1.1rem;
+        text-align: left; 
+        padding: 12rem 7rem; 
+        box-sizing: border-box;
+        font-weight:bold;
+    }
+
+</style>
+
+
+
+
+<div class="container-fluid" style="padding:2rem 1rem;background-color:#5EA061;border-radius:.5rem;text-align:center;">
+    <div class="HeaderContext">
+    
+        <span style="position:absolute;right:1rem;top:.7rem;color:white;cursor:pointer;" class="material-symbols-outlined" data-bs-toggle="modal" data-bs-target="#logoutaccount"> power_settings_new</span>
+        <h1 class="fs-primary fw-extra-bold text-clr-primary-accent" id="current_time" style="font-weight:bold;font-size:clamp(1.8rem,3.2rem,4.7rem);color:#D5E8D6;"></h1>
+        <h1 class="fs-secondary fw-extra-bold" id="currentDate" style="font-weight:bold;color:white;"></h1>
+
+        <script>
+            function displayCurrentTime() {
+              $.ajax({
+                url: '{% url "display_current_time" %}',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    var datetimeString = data.internet_time;
+                    var currentTime = new Date(datetimeString);
+                    var formattedTime = currentTime.toLocaleTimeString();
+                    var currentDate = currentTime.toDateString();
+                    $('#currentDate').text(currentDate)
+                    $('#current_time').text(formattedTime);
+                },
+                error: function (error) {
+                  console.error('Error fetching current time:', error);
+                }
+              });
+            }
+            displayCurrentTime();
+            setInterval(displayCurrentTime, 500);
+
+            </script>
+
+    </div>
+</div>
+
+
+
+
+
+
+  <div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div id="webcam-container" style="position:relative;right:5rem;">
+                <video id="webcam" width="640" height="580" autoplay alt="IF THE VIDEO IS NOT SHOWING REFRESH THE PAGE" ></video>
+                <canvas id="canvas" width="640" height="580" style="display: none;"></canvas>
+                 <div id="error-message" style="font-size:3rem;font-weight: bold;">REFRESH THE PAGE</div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mt-5">
+            <div class="col-md-12" style="position: relative; left: 3rem;">
+                <div class="table-container card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="defaultdatatable" class="table table-bordered table-hover table-striped tables">
+                                <thead>
+                                    <tr>
+                                        <th style="background-color:#D5E8D6">NAME</th>
+                                        <th style="background-color:#D5E8D6">TIMEIN</th>
+                                        <th style="background-color:#D5E8D6">BREAKOUT</th>
+                                        <th style="background-color:#D5E8D6">BREAKIN</th>
+                                        <th style="background-color:#D5E8D6">TIMEOUT</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Your table content goes here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+    function QRList() {
+        $.ajax({
+            url: '{% url "display_qr_list" %}',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var tableBody = $('#defaultdatatable tbody');
+                tableBody.empty(); // Clear previous table data
+
+                data.attendances.forEach(function (attendance) {
+                    var row = $('<tr>');
+                    row.append('<td>' + attendance.name + '</td>');
+                    row.append('<td>' + attendance.timein + '</td>');
+                    row.append('<td>' + attendance.breakout + '</td>');
+                    row.append('<td>' + attendance.breakin + '</td>');
+                    row.append('<td>' + attendance.timeout + '</td>');
+                    tableBody.append(row);
+                });
+            },
+            error: function (error) {
+                console.error('Error fetching attendance data:', error);
+            }
+        });
+    }
+    QRList();
+    setInterval(QRList, 1000);
+
+</script>
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const video = document.getElementById('webcam');
+        const canvas = document.getElementById('canvas');
+        const errorMessage = document.getElementById('error-message');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+                video.play();
+
+                const track = stream.getVideoTracks()[0];
+                const imageCapture = new ImageCapture(track);
+
+                const scanQRCode = () => {
+                    imageCapture.grabFrame()
+                        .then((imageBitmap) => {
+                            const context = canvas.getContext('2d');
+                            context.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height);
+
+                            canvas.toBlob((blob) => {
+                                const formData = new FormData();
+                                formData.append('webcam_image_hpc', blob, 'webcam_image_hpc.png');
+
+                                fetch('{% url "webcam_qr_code_scanner_hpc" %}', {
+                                    method: 'POST',
+                                    body: formData,
+                                    headers: {
+                                        'X-CSRFToken': '{{ csrf_token }}',
+                                    },
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    // Continue scanning for the next frame
+                                    requestAnimationFrame(scanQRCode);
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+
+                                    // Continue scanning for the next frame
+                                    requestAnimationFrame(scanQRCode);
+                                });
+                            }, 'image/png');
+                        })
+                        .catch((error) => {
+                            console.error('Error grabbing frame:', error);
+
+                            // Continue scanning for the next frame
+                            requestAnimationFrame(scanQRCode);
+
+                        });
+                };
+
+                // Start the automatic QR code scanning
+                requestAnimationFrame(scanQRCode);
+            })
+            .catch((error) => {
+                console.error('ESDFSDFSDm:', error);
+                webcam.style.display = 'none';
+                errorMessage.style.display = 'block';
+            });
+
+
+        toastr.options = {
+            positionClass: 'toast-top-right',
+            preventDuplicates: true,
+            progressBar: true,
+            showDuration: 2500,
+            hideDuration: 1000,
+            timeOut: 4300,
+            extendedTimeOut: 1000,
+        
+        };
+       
+
+       function fetchAndDisplayMessages() {
+            $.ajax({
+                url: '{% url "fetch_messages_hpc" %}',
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    data.messages.forEach(function(message) {
+                        // Check if 'no_bibo' is present in the comma-separated string of tags
+                        if (message.tags.includes('no_bibo')) {
+                            toastr.error(message.text, {toastClass:'toast-error toastSize'});
+                        }
+
+                        else if (message.tags.includes('no_bibo_hpc')) {
+                            toastr.error(message.text, {toastClass:'toast-error toastSize'});
+                        }
+                         else if (message.tags.includes('breakin_already')) {
+                            toastr.error(message.text, {toastClass:'toast-error toastSize'});
+                        }
+                        else if (message.tags.includes('timeout_already')) {
+                            toastr.error(message.text, {toastClass:'toast-error toastSize'});
+                        }
+                         else {
+                            toastr.success(message.text, {toastClass: 'toast-success toastSize'});
+                        }
+                    });
+                },
+                error: function(error) {
+                    console.error('Error fetching messages:', error);
+                },
+                complete: function() {
+                    setTimeout(fetchAndDisplayMessages, 200);
+                }
+            });
+        }
+
+
+        fetchAndDisplayMessages();
+    });
+
+
+
+</script>
+
+{% comment %} logout modal {% endcomment %}
+
+<div class="modal fade" id="logoutaccount" tabindex="-1" aria-labelledby="logoutaccount" aria-hidden="true">
+    <div class="modal-dialog">
+     
+      <form action="{% url 'logout' %}" method="post">
+     
+   
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="logoutaccount"></h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        <h5>Are you sure you want to logout?</h5>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-danger">logout</button>
+        </div>
+      </form>
+      </div>
+
+    </div>
+
+  </div>
+
+
+{% endblock %}
+
+
+
+
+

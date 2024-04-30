@@ -1,0 +1,49 @@
+/* styles.css */
+:root{
+    --darkblue: #2c4050;
+}
+*{
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+}
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background-color: var(--darkblue);
+}
+
+.main-form{
+    background-color: var(--darkblue);
+}
+.form-group label{
+    color: white;
+    font-weight: 500;
+}
+input[type="text"],
+input[type="password"] {
+    width: 98%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  
+}
+.login-button{
+    padding:.5rem 2rem;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight:500;
+
+}
+
+
+/* styles.css */
+@media (max-width: 600px) {
+    form {
+        max-width: 100%;
+    }
+}

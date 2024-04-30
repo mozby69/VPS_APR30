@@ -1,0 +1,21 @@
+{% extends "myapp/base.html" %}
+{% load static %}
+{% block content %}
+  {% include 'myapp/navbar.html' %}
+
+
+<div style="position:relative;left:5rem;top:5rem;">
+    <div>
+        <h3 style="position:relative;left:3rem;">{{ student.name }}</h3>
+        <img src="{{ student.qr_code.url }}" alt="QR Code" width="400px" height="400px">
+    </div>
+</div>
+
+
+
+
+<!-- Add any additional information you want to display -->
+
+
+
+{% endblock content %}

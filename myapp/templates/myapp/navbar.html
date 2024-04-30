@@ -1,0 +1,102 @@
+{% load static %}
+{% block content %}
+<head>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
+</head>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <a class="navbar-brand jgclogo text-white" href="{% url 'home' %}">JGC DTR</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav ms-auto">
+
+
+          
+          <li class="nav-item">
+            <a class="nav-link active text-white" aria-current="page" href="{% url 'index' %}">QR SCANNER</a>
+          </li>
+
+        
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              EXPORT & LATE
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url 'export' %}">EXPORT</a></li>
+              <li><a class="dropdown-item" href="{% url 'check_late_mainpage' %}">CHECK LATE</a></li>
+
+            </ul>
+          </li>
+
+          {% if user.username == 'MIS_XYRYL' or user.username == 'ADMIN' %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              RECORDS
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url 'list' %}">EDIT RECORD</a></li>
+              <li><a class="dropdown-item" href="{% url 'addemployee' %}">ADD RECORD</a></li>
+          
+              <li><a class="dropdown-item" href="{% url 'main_temp' %}">TEMPORARY</a></li>
+            
+            </ul>
+          </li>
+          {% endif %}
+      
+      
+    
+
+          <li class="nav-item">
+            <a class="nav-link text-white logoutlink" data-bs-toggle="modal" data-bs-target="#logoutaccount">LOGOUT</a>
+          </li>
+
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+ 
+  {% if user.username == 'admin' %}
+  {% endif %}
+  
+
+
+
+  <!-- logout modal -->
+
+
+  <div class="modal fade" id="logoutaccount" tabindex="-1" aria-labelledby="logoutaccount" aria-hidden="true">
+    <div class="modal-dialog">
+     
+      <form action="{% url 'logout' %}" method="post">
+     
+   
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="logoutaccount"></h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        <h5>Are you sure you want to logout?</h5>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-danger">logout</button>
+        </div>
+      </form>
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+{% endblock content %}

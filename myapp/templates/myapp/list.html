@@ -1,0 +1,393 @@
+
+{% extends "myapp/base.html" %}
+{% load static %}
+{% block content %}
+  {% include 'myapp/navbar.html' %}
+
+
+
+<style>
+  .toastSize {
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 1.1rem 1.1rem;
+    border:8px solid white;
+    position:relative;
+    top:5rem;
+  }
+  
+  .toast-success {
+    color: white;
+    font-weight:bold;
+    font-size:1rem;
+    border:3px solid white;
+  }
+
+  .late-input {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .input-wrapper {
+    position: relative;
+  }
+  
+  .input-wrapper input[type="checkbox"] {
+    position: absolute;
+    top: 30%;
+    right: 15px; /* Adjust this value to your preference */
+    transform: translateY(-50%);
+  }
+  
+  .input-wrapper label {
+    margin-left: 5px; /* Adjust this value to your preference */
+  }
+  
+</style>
+
+
+  <div class="content-wrapper">
+    <div class="container-fluid">
+        <div class="row pt-2 pb-2">
+            <div class="col-sm-12 mt-3">
+                <h2 class="page-title" style="color:#55AF5A;font-weight:bold;">EMPLOYEE LIST</h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+
+                <div class="card-header" >
+
+                  <form method="GET" action="{% url 'list' %}">
+                    <div class="row px-2" >
+                        <div class="col-md-3 px-1">
+                            <div class="d-flex justify-content-start">
+                                {% comment %} <h4 style="font-size:1.4rem;color:#4E7A5D;font-weight:bold;width:45%;text-align:center;">SELECT DATE</h4>    {% endcomment %}
+                                <input type="date" class="form-control" id="selected_date" name="selected_date" style="margin-right:1rem;">
+                                <button type="submit" class="ml-5 btn btn-primary">Filter</button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-9">
+                        </div>
+                    </div>
+                </form>
+                
+                
+                    </div> 
+
+                  <div class="table-container card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table style="font-size:.8rem;" id="defaultdatatable" class="table table-bordered table-hover table-striped tables">
+                                <thead>
+                                    <tr>
+                                    
+
+                                        <th>EMPCODE</th>
+                                        <th>DATE</th>
+                                        <th>NAME</th>
+                                        <th>BRANCH NAME</th>
+                                        <th>TIMEIN</th>
+                                        <th>BREAKOUT</th>
+                                        <th>BREAKIN</th>
+                                        <th>TIMEOUT</th>
+                                        <th>TOTAL LATENESS</th>
+                           
+                                        <th>LATE</th>
+                                        <th>ABSENT</th>
+                                        <th>LOGIN STATUS</th>
+                                        <th>ACTIONS</th>
+                                     
+                                       
+                                    </tr>
+                                </thead>
+                                <tbody>
+                              
+                                  {% for list in employee_list %}
+                                  
+
+                                    <tr>
+                                      
+                                      <td>{{ list.EmpCode}}</td>
+                                      <td>{{ list.date }} </td>
+                                      <td>{{ list.Empname }}</td>
+                                      <td>{{ list.user_branchname }}</td>
+                                      <td>{{ list.timein }}</td>
+                                      <td>{{ list.breakout }}</td>
+                                      <td>{{ list.breakin }}</td>
+                                      <td>{{ list.timeout }}</td>
+                                      <td>{{ list.totallateness }}</td>
+                               
+                                      <td>{{ list.late }}</td>
+                                      <td>{{ list.absent }}</td>     
+                                      <td>{{ list.flex_time }} </td>
+                                      
+                                    
+                              
+                                    
+                                      <td style="vertical-align:middle;">
+                                      {% comment %} <a class="material-symbols-outlined btn btn-success" data-bs-toggle="modal" data-bs-target="#view_qr_{{qr.EmpCode}}"> wysiwyg </a>                                                                   {% endcomment %}
+                                      <span class="material-symbols-outlined btn btn-primary edit-btn" data-bs-toggle="modal" data-bs-target="#updateQREmployeeModal_{{ list.EmpCode }}_{{ list.date|date:"Ymd" }}"> edit </span>
+                                      <span class="material-symbols-outlined btn btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModalQR_{{list.EmpCode}}"> delete </span>        
+                                      </td>
+
+                                     
+
+                                    </tr>
+
+                         
+                            
+                        </div>
+
+
+
+
+</div>
+</div>
+
+
+
+
+
+
+<!-- update qr list modal -->
+<div class="modal fade" id="updateQREmployeeModal_{{ list.EmpCode }}_{{ list.date|date:"Ymd" }}" tabindex="-1" aria-labelledby="updateQREmployeeModal_{{ list.EmpCode }}_{{ list.date|date:"Ymd" }}" aria-hidden="true">
+
+    <div class="modal-dialog">
+      <form action="" method="post">
+        {% csrf_token %}
+   
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="updateQREmployeeModal_{{ list.EmpCode}}">Edit Employee</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id" value="{{list.EmpCode}}">
+
+      <div class="row">
+
+      <div class="col-6">
+
+          <div class="" style="display:none;">
+            <label for="name" >EMPCODE</label>
+            <input type="text" name="EmpCode" class="form-control" value="{{list.EmpCode}}" id="EmpCode" required>
+          </div>
+
+          <div class="">
+            <label for="name">DATE</label>
+            <input type="text" readonly name="date" class="form-control" value="{{list.date }}" id="date" required>
+          </div>
+
+          <div class="">
+            <label for="name" >NAME</label>
+            <input type="text" name="Empname" class="form-control" value="{{list.Empname }}" id="Empname" required>
+          </div>
+
+          <div class="">
+            <label for="name" >BRANCH NAME</label>
+            <input type="text" name="user_branchname" class="form-control" value="{{list.user_branchname }}" id="user_branchname" required>
+          </div>
+
+   
+          
+          <div class="">
+            <label for="name" >TIMEIN</label>
+            <input type="text" name="timein" class="form-control" value="{{list.timein }}" id="timein">
+          </div>  
+          
+          <div class="">
+            <label for="name" >BREAKOUT</label>
+            <input type="text" name="breakout" class="form-control" value="{{list.breakout }}" id="breakout">
+          </div>
+
+         
+
+           
+        </div>
+        <div class="col-6">  
+
+          <div class="">
+            <label for="name" >BREAKIN</label>
+            <input type="text" name="breakin" class="form-control" value="{{list.breakin }}" id="breakin">
+          </div>
+
+          <div class="">
+            <label for="name" >TIMEOUT</label>
+            <input type="text" name="timeout" class="form-control" value="{{list.timeout }}" id="timeout">
+          </div>
+   
+          <div class="">
+            <label for="name" >TOTAL LATENESS</label>
+            <input type="text" name="totallateness " class="form-control" value="{{list.totallateness  }}" id="totallateness ">
+          </div>
+
+         <!--  <div class="late-input">
+            <label for="name">TOTALLATENESS</label>
+            <div class="input-wrapper">
+              <input type="text" name="totallateness" class="form-control" value="{{list.totallateness}}" id="totallateness">
+              <input type="checkbox" id="noneCheckbox">
+              <label for="noneCheckbox">None</label>
+            </div>
+          </div>
+           -->
+ 
+                  
+      
+          <div class="late-input">
+            <label for="name">LATE</label>
+            <div class="input-wrapper">
+              <input type="text" name="late" class="form-control" value="{{list.late}}" id="late">
+       
+            </div>
+          </div>
+          
+ 
+          
+             
+          <div class="">
+            <label for="name" >ABSENT</label>
+            <input type="text" name="absent " class="form-control" value="{{list.absent}}" id="absent" required>
+          </div>
+          
+     
+      
+        </div>
+      </div>  
+     
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" name="update" data-user-id="{{ list.EmpCode }}">Update Name</button>
+        </div>
+      </div>
+    </form>
+    </div>
+  </div>
+
+
+
+
+
+
+
+   <!-- delete MODAL qr EMPLOYEE -->
+      <div class="modal fade" id="deleteEmployeeModalQR_{{list.EmpCode}}" tabindex="-1" aria-labelledby="deleteEmployeeModalQR_{{list.EmpCode}}" aria-hidden="true">
+        <div class="modal-dialog">
+          <form action="{% url 'list' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="EmpCode" value="{{list.EmpCode}}">
+        
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="deleteEmployeeModalQR_{{list.EmpCode}}">Delete Employee QR - {{ list.date  }}</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              
+              <input type="hidden" name="date" value="{{ list.date }}">
+
+              <p>are you sure you want to delete - <span style="font-weight:bold;">{{ list.Empname }}?</span></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-danger" name="delete">delete employee</button>
+            </div>
+          </div>
+        </form>
+        </div>
+    
+      </div>
+
+
+
+
+      {% endfor %}
+
+    </tbody>
+  </table>
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+
+  <script>
+    $(document).ready(function() {
+      $('#defaultdatatable').DataTable({
+          searching: true,
+          pageLength: 7,
+          columnDefs: [
+              { type: 'date', targets: 1 } // Assuming the date column is the third column (index 2)
+          ],
+          "order": [[ 1, "desc" ]] // Sort by the date column in descending order
+      });
+  
+      // Parse dates in the table to make them sortable
+      $('#defaultdatatable tbody td:nth-child(3)').each(function() {
+          var date = moment($(this).text(), "MMMM D, YYYY").format("YYYY-MM-DD");
+          $(this).attr('data-order', date);
+      });
+  });
+  
+  </script>
+
+<script>
+
+  toastr.options = {
+    positionClass: 'toast-top-left',
+    preventDuplicates: true,
+    progressBar: true,
+    showDuration: 900,
+    hideDuration: 700,
+    timeOut: 4300,
+    extendedTimeOut: 1000,
+
+}
+  function fetchAndDisplayMessages() {
+    $.ajax({
+        url: '{% url "fetch_edit_successfully" %}',
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            data.messages.forEach(function(message) {
+            
+                if (message.tags.includes('edit')) {
+                    toastr.success(message.text, {toastClass:'toast-success toastSize'});
+                }
+                 else {
+                    toastr.error(message.text, {toastClass: 'toast-success toastSize'});
+                }
+            });
+        },
+        error: function(error) {
+            console.error('Error fetching messages:', error);
+        },
+        complete: function() {
+            setTimeout(fetchAndDisplayMessages, 300);
+        }
+    });
+}
+
+fetchAndDisplayMessages();
+
+</script>
+          
+
+
+
+{% endblock content %}
+
+
+

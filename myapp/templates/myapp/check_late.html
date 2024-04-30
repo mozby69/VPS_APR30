@@ -1,0 +1,112 @@
+{% extends "myapp/base.html" %}
+
+
+
+{% block content %}
+{% include 'myapp/navbar.html' %}
+
+
+<style>
+    .left-container {
+        float: left;
+        margin-right: 20px; /* Adjust as needed */
+    }
+</style>
+
+<div class="row">
+
+<div class="col-6 px-5 mt-5 mb-3" style="width:25%;"> 
+<h4 style="color:#4E7A5D;font-weight:bold;">SELECT DATE</h4>   
+<input type="date" class="form-control" id="selected_date" name="selected_date">
+</div>
+
+
+
+<div class="col-12">
+    
+<div class="table-container card" style="margin-left:2rem;margin-right:2rem;">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="defaultdatatable" class="table table-bordered table-hover table-striped tables">
+                <thead>
+                    <tr>
+                
+                        <th>BRANCH</th>
+                        <th>NAME</th>
+                        <th>TIMESTAMPS</th>
+                        <th>LATEST COUNT</th>
+               
+                       
+                    </tr>
+                </thead>
+                <tbody>
+      
+                </tbody>
+            
+        </div>
+
+    </div>
+</div>
+</div>
+
+<div class="col-2" style="margin-bottom:1rem;padding:.4rem .2rem;">
+    <a id="print_link" href="#" target="_blank" style="margin-bottom:2rem;background-color:#4E7A5D;padding:.4rem 1.5rem;color:white;border-radius:.5rem;text-decoration:none;">Print</a>
+</div>
+
+</div>
+
+
+<script>
+    // Function to get the selected date and update the print link
+    function updatePrintLink() {
+        // Get the selected date from the input field
+        var selectedDate = document.getElementById('selected_date').value;
+        // Construct the URL with the selected date
+        var url = "{% url 'generate_pdf' %}?selected_date=" + selectedDate;
+        // Set the href attribute of the anchor tag to the constructed URL
+        document.getElementById('print_link').href = url;
+    }
+
+    // Call the updatePrintLink function when the date input value changes
+    document.getElementById('selected_date').addEventListener('change', updatePrintLink);
+
+    // Initial call to update the print link when the page loads
+    updatePrintLink();
+</script>
+
+
+<script>
+
+    function display_realtime() {
+        var selectedDate = $('#selected_date').val();  // Get selected date from the date picker
+        $.ajax({
+            url: '{% url "display_table_checklate" %}',
+            type: 'GET',
+            dataType: 'json',
+            data: {selected_date: selectedDate},  // Pass selected date to the backend
+            success: function (data) {
+                var tableBody = $('#defaultdatatable tbody');
+                tableBody.empty(); 
+    
+                data.attendances.forEach(function (attendance) {
+                    var row = $('<tr>');
+                    row.append('<td>' + attendance.user_branchname + '</td>');
+                    row.append('<td>' + attendance.Empname + '</td>');
+                    row.append('<td>' + attendance.timein + '</td>');
+                    row.append('<td>' + attendance.latecount + '</td>');
+                    tableBody.append(row);
+                });
+            },
+            error: function (error) {
+                console.error('Error fetching attendance data:', error);
+            }
+        });
+    }
+    
+
+    display_realtime();
+    setInterval(display_realtime, 800);
+</script>
+
+{% endblock content %}
+    

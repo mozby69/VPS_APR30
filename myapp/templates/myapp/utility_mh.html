@@ -1,0 +1,499 @@
+<!-- qr_scanner.html -->
+
+{% extends "myapp/base.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+    .table-container {
+        max-height: 490px;
+        overflow-y: auto;
+        
+    }
+    
+    .toastSize {
+        font-size: 1.3rem;
+        font-weight: bold;
+        padding: 1.1rem 1.1rem;
+        border:5px solid white;
+        position:relative;
+        top:3rem;
+      }
+    
+      .toast-success {
+        color: white;
+        font-weight:bold;
+        font-size:1.1rem;
+        border:5px solid white;
+      }
+    
+      .toast-error {
+        background-color: red;
+        color: white;
+        font-weight:bold;
+        font-size:1.1rem;
+        border:5px solid white;
+      }
+      .toast-top-right {
+        top: 4rem;
+        right:1rem;
+        float:right;
+      }
+    
+    #error-message {
+        position: absolute;
+        top: .5rem;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: none;
+        background-color: #5EA061;
+        color: white;
+        font-size: 1.1rem;
+        text-align: left; 
+        padding: 12rem 7rem; 
+        box-sizing: border-box;
+        font-weight:bold;
+    }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+<div class="container-fluid" style="padding:2rem 1rem;background-color:#5EA061;border-radius:.5rem;text-align:center;">
+    
+    <div class="HeaderContext">
+        
+   
+        <span style="position:absolute;right:1rem;top:.5rem;color:white;" class="material-symbols-outlined" data-bs-toggle="modal" data-bs-target="#logoutaccount"> power_settings_new</span>
+        <h1 class="fs-primary fw-extra-bold text-clr-primary-accent" id="current_time" style="font-weight:bold;font-size:clamp(1.8rem,3.2rem,4.7rem);color:#D5E8D6;"></h1>
+        <h1 class="fs-secondary fw-extra-bold" id="currentDate" style="font-weight:bold;color:white;"></h1>
+      
+
+        <script>
+            function displayCurrentTime() {
+              $.ajax({
+                url: '{% url "display_current_time" %}',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    var datetimeString = data.internet_time;
+                    var currentTime = new Date(datetimeString);
+                    var formattedTime = currentTime.toLocaleTimeString();
+                    var currentDate = currentTime.toDateString();
+                    $('#currentDate').text(currentDate)
+                    $('#current_time').text(formattedTime);
+                },
+                error: function (error) {
+                  console.error('Error fetching current time:', error);
+                }
+              });
+            }
+            displayCurrentTime();
+            setInterval(displayCurrentTime, 500);
+
+            </script>
+
+    </div>
+</div>
+
+
+
+
+
+
+  <div class="container">
+
+
+    <form id="droneForm" class="RadioButton" style="margin-top:3rem;position:relative;right:14.5rem;">
+        <fieldset style="display:flex;margin-left:9.8rem;margin-top:1rem;padding:0 1rem;width:50%;border-radius:.5rem;font-size:1.2rem;">
+          <div style="padding:.6rem .7rem;border-radius:.5rem;color:white;background-color:#5EA061;font-weight:bold;">
+            <input type="radio" id="six" name="drone" value="ten_to_twelve"/>
+            <label for="louie">10:00 AM - 12:00 PM</label>
+          </div>
+      
+          <div style="margin-left:3rem;padding:.6rem .7rem;border-radius:.5rem;color:white;background-color:#5EA061;font-weight:bold;">
+            <input type="radio" id="seven" name="drone" value="twelve_to_two"  />
+            <label for="huey">12:00 AM - 2:00 PM</label>
+          </div>
+    
+          <button id="refreshButton" style="margin-left:2.5rem; border:none;color:white;border-radius:2rem;padding:.9rem 1rem;background-color:#5EA061;" class="material-symbols-outlined"> autorenew</button>
+    
+        </fieldset>  
+    </form>
+
+    
+
+    <div class="row">
+
+     <div class="col-md-6" >
+        <div id="webcam-container" style="position:relative;right:5.4rem;">
+            <video id="webcam" width="640" height="480" autoplay alt="IF THE VIDEO IS NOT SHOWING REFRESH THE PAGE" style="border-radius:.5rem;outline:3px solid #D5E8D6;margin-top:2.9rem;"></video>
+            <canvas id="canvas" width="640" height="580" style="display:none;"></canvas>
+             {% comment %} <div id="error-message" style="font-size:3rem;font-weight: bold;text-align:center;vertical-align:center;">CHOOSE SCHEDULE</div> {% endcomment %}
+        </div>
+    </div>
+
+
+        <div class="col-md-6 mt-5" >
+            <div class="col-md-12" style="position: relative; left: 3rem;">
+                <div class="table-container card" style="border:3px solid #D5E8D6;">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="defaultdatatable" class="table table-bordered table-hover table-striped tables">
+                                <thead>
+                                    <tr>
+                                        <th style="background-color:#D5E8D6">NAME</th>
+                                        <th style="background-color:#D5E8D6">TIMEIN</th>
+                                        <th style="background-color:#D5E8D6">BREAKOUT</th>
+                                        <th style="background-color:#D5E8D6">BREAKIN</th>
+                                        <th style="background-color:#D5E8D6">TIMEOUT</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Your table content goes here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% comment %} logout modal {% endcomment %}
+
+<div class="modal fade" id="logoutaccount" tabindex="-1" aria-labelledby="logoutaccount" aria-hidden="true">
+    <div class="modal-dialog">
+     
+      <form action="{% url 'logout' %}" method="post">
+     
+   
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="logoutaccount"></h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+        <h5>Are you sure you want to logout?</h5>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-danger">logout</button>
+        </div>
+      </form>
+      </div>
+
+    </div>
+
+  </div>
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const video = document.getElementById('webcam');
+        const canvas = document.getElementById('canvas');
+        const errorMessage = document.getElementById('error-message');
+        const droneForm = document.getElementById('droneForm');
+        let timer;
+        let stream;
+    
+        function startWebcam() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((mediaStream) => {
+                    stream = mediaStream;
+                    video.srcObject = mediaStream;
+    
+                    video.onloadedmetadata = () => {
+                        video.play();
+                    };
+    
+                    const track = mediaStream.getVideoTracks()[0];
+                    const imageCapture = new ImageCapture(track);
+    
+                    const scanQRCode = () => {
+                        imageCapture.grabFrame()
+                            .then((imageBitmap) => {
+                                const context = canvas.getContext('2d');
+                                context.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height);
+    
+                                canvas.toBlob((blob) => {
+                                    const formData = new FormData();
+                                    formData.append('webcam_image_utility', blob, 'webcam_image_utility.png');
+
+                                     // Determine the URL based on the selected radio button
+                                    let url;
+                                    const selectedRadio = document.querySelector('input[name="drone"]:checked');
+                                    if (selectedRadio && selectedRadio.value === 'ten_to_twelve') {
+                                        url = '{% url "webcam_qr_code_scanner_serviamus_utility_10" %}';
+                                    } else if (selectedRadio && selectedRadio.value === 'twelve_to_two') {
+                                        url = '{% url "webcam_qr_code_scanner_serviamus_utility_12" %}';
+                                    }
+        
+                                    fetch(url, {
+                                        method: 'POST',
+                                        body: formData,
+                                        headers: {
+                                            'X-CSRFToken': '{{ csrf_token }}',
+                                        },
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        // Continue scanning for the next frame
+                                        requestAnimationFrame(scanQRCode);
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error);
+    
+                                        // Continue scanning for the next frame
+                                        requestAnimationFrame(scanQRCode);
+                                    });
+                                }, 'image/png');
+
+                            })
+                            .catch((error) => {
+                                console.error('Error grabbing frame:', error);
+                                // video.style.display = 'none';
+                                //  errorMessage.style.display = 'block';
+    
+                                // Continue scanning for the next frame
+                                requestAnimationFrame(scanQRCode);
+                            });
+                    };
+    
+                    // Start the automatic QR code scanning
+                    requestAnimationFrame(scanQRCode);
+                })
+                .catch((error) => {
+                    console.error('Error starting webcam:', error);
+                    video.style.display = 'none';
+                    errorMessage.textContent = 'Failed to start webcam.';
+                    // errorMessage.style.display = 'block';
+                });
+        }
+    
+        function stopWebcam() {
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null;
+                stream = null;
+            }
+        }
+    
+        function resetTimer() {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                stopWebcam();
+            }, 60000); // 1 minute timer
+        }
+    
+        // Event listener for radio button changes
+        droneForm.addEventListener('change', function(event) {
+            const radio = event.target;
+            if (radio.type === 'radio' && radio.checked) {
+                stopWebcam(); // Stop the previous webcam instance if any
+                if (radio.value === 'ten_to_twelve' || radio.value === 'twelve_to_two') {
+                    startWebcam(); // Start the webcam
+                }
+                resetTimer(); // Reset the timer
+            }
+        });
+    
+        // Check if any radio button is initially checked and start webcam accordingly
+        const checkedRadio = document.querySelector('input[name="drone"]:checked');
+        if (checkedRadio && (checkedRadio.value === 'ten_to_twelve' || checkedRadio.value === 'twelve_to_two')) {
+            startWebcam();
+        }
+        resetTimer(); // Start the timer when the page loads
+    });
+    
+  
+</script>
+
+
+       
+<script>
+    var lastBreakinSixToastTime = {}; 
+    function fetchAndDisplayMessages12() {
+        $.ajax({
+            url: '{% url "fetch_messages_utility_twelve" %}',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                data.messages.forEach(function(message) {
+                    // Check if 'no_bibo' is present in the comma-separated string of tags
+                   
+                    if (message.tags.includes('no_bibo_utility_twelve')) {
+                        var currentTime = new Date().getTime();
+                        var lastToastTime = lastBreakinSixToastTime[message.text] || 0;
+                        if (currentTime - lastToastTime >= 7000) { 
+                            toastr.error(message.text, {toastClass:'toast-error toastSize'});
+                            lastBreakinSixToastTime[message.text] = currentTime; 
+                        }
+                    }
+
+          
+
+                    else if (message.tags.includes('breakin_already_twelve')) {
+                        var currentTime = new Date().getTime();
+                        var lastToastTime = lastBreakinSixToastTime[message.text] || 0;
+                        if (currentTime - lastToastTime >= 7000) { 
+                            toastr.error(message.text, {toastClass:'toast-error toastSize'});
+                            lastBreakinSixToastTime[message.text] = currentTime; 
+                        }
+                    }
+
+                    else if (message.tags.includes('timeout_already_twelve')) {
+                        var currentTime = new Date().getTime();
+                        var lastToastTime = lastBreakinSixToastTime[message.text] || 0;
+                        if (currentTime - lastToastTime >= 7000) { 
+                            toastr.error(message.text, {toastClass:'toast-error toastSize'});
+                            lastBreakinSixToastTime[message.text] = currentTime; 
+                        }
+                    }
+
+              
+                     else if (message.tags.includes('breakin_already_twelve')) {
+                        toastr.error(message.text, {toastClass:'toast-error toastSize'});
+                    }
+                    else if (message.tags.includes('timeout_already_twelve')) {
+                        toastr.error(message.text, {toastClass:'toast-error toastSize'});
+                    }
+
+                     else {
+                        toastr.success(message.text, {toastClass: 'toast-success toastSize'});
+                    }
+                });
+            },
+            error: function(error) {
+                console.error('Error fetching messages:', error);
+            },
+            complete: function() {
+                setTimeout(fetchAndDisplayMessages12, 300);
+            }
+        });
+    }
+
+
+    fetchAndDisplayMessages12();
+</script>
+
+
+<script>
+    var lastBreakinSixToastTime = {}; 
+    function fetchAndDisplayMessages10() {
+        $.ajax({
+            url: '{% url "fetch_messages_utility_ten" %}',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                data.messages.forEach(function(message) {
+                    // Check if 'no_bibo' is present in the comma-separated string of tags
+                   
+                    if (message.tags.includes('no_bibo_utility_ten')) {
+                        var currentTime = new Date().getTime();
+                        var lastToastTime = lastBreakinSixToastTime[message.text] || 0;
+                        if (currentTime - lastToastTime >= 7000) { 
+                            toastr.error(message.text, {toastClass:'toast-error toastSize'});
+                            lastBreakinSixToastTime[message.text] = currentTime; 
+                        }
+                    }
+
+          
+
+                    else if (message.tags.includes('breakin_already_ten')) {
+                        var currentTime = new Date().getTime();
+                        var lastToastTime = lastBreakinSixToastTime[message.text] || 0;
+                        if (currentTime - lastToastTime >= 7000) { 
+                            toastr.error(message.text, {toastClass:'toast-error toastSize'});
+                            lastBreakinSixToastTime[message.text] = currentTime; 
+                        }
+                    }
+
+                    else if (message.tags.includes('timeout_already_ten')) {
+                        var currentTime = new Date().getTime();
+                        var lastToastTime = lastBreakinSixToastTime[message.text] || 0;
+                        if (currentTime - lastToastTime >= 7000) { 
+                            toastr.error(message.text, {toastClass:'toast-error toastSize'});
+                            lastBreakinSixToastTime[message.text] = currentTime; 
+                        }
+                    }
+
+              
+                     else if (message.tags.includes('breakin_already_ten')) {
+                        toastr.error(message.text, {toastClass:'toast-error toastSize'});
+                    }
+                    else if (message.tags.includes('timeout_already_ten')) {
+                        toastr.error(message.text, {toastClass:'toast-error toastSize'});
+                    }
+
+                     else {
+                        toastr.success(message.text, {toastClass: 'toast-success toastSize'});
+                    }
+                });
+            },
+            error: function(error) {
+                console.error('Error fetching messages:', error);
+            },
+            complete: function() {
+                setTimeout(fetchAndDisplayMessages10, 300);
+            }
+        });
+    }
+
+
+    fetchAndDisplayMessages10();
+</script>
+
+
+<script>
+    function QRList() {
+        $.ajax({
+            url: '{% url "display_qr_list" %}',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var tableBody = $('#defaultdatatable tbody');
+                tableBody.empty(); // Clear previous table data
+
+                data.attendances.forEach(function (attendance) {
+                    var row = $('<tr>');
+                    row.append('<td>' + attendance.name + '</td>');
+                    row.append('<td>' + attendance.timein + '</td>');
+                    row.append('<td>' + attendance.breakout + '</td>');
+                    row.append('<td>' + attendance.breakin + '</td>');
+                    row.append('<td>' + attendance.timeout + '</td>');
+                    tableBody.append(row);
+                });
+            },
+            error: function (error) {
+                console.error('Error fetching attendance data:', error);
+            }
+        });
+    }
+    QRList();
+    setInterval(QRList, 1000);
+</script>
+
+
+
+<script>
+
+    function refreshPage() {
+        location.reload();
+    }
+
+    document.getElementById("refreshButton").addEventListener("click", refreshPage);
+</script>
+
+
+{% endblock %}
+
+
+
+

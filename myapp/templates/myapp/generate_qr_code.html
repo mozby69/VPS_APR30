@@ -1,0 +1,347 @@
+{% comment %} {% extends "myapp/base.html" %}
+{% load static %}
+
+{% block content %}
+  {% include 'myapp/navbar.html' %}
+
+  <link href="{% static 'css/qr_page.css' %}" rel="stylesheet">
+
+  <div class="content-wrapper">
+    <div class="container-fluid">
+        <div class="row pt-2 pb-2">
+            <div class="col-sm-12 mt-3">
+                <h2 class="page-title">QR CODE LIST</h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <div class="row">
+
+                            <div class="col-lg-10">
+                                <div class="d-flex justify-content-start">
+                                    <button type="button" class="btn btn-primary btn-round waves-effect waves-light m-1" data-bs-toggle="modal" data-bs-target="#addQRModal">
+                                        <i class="fa fa-plus"></i> <span>&nbsp;ADD NEW RECORD</span>
+                                    </button>
+
+                           <!--        <form method="post" action="{% url 'generate_qr_code' %}" target="_blank">
+                                      {% csrf_token %}
+                                      <button type="submit" class="btn btn-success btn-round waves-effect waves-light m-1" name="print">
+                                          <i class="fa fa-print"></i> <span>&nbsp;PRINT</span>
+                                      </button>
+                                  </form> -->
+
+                                  <!-- 
+                                    <button type="button" class="btn btn-primary btn-round waves-effect waves-light m-1" data-bs-toggle="modal" data-bs-target="#addQRModalExisting">
+                                      <i class="fa fa-plus"></i> <span>&nbsp;ADD EXISTING RECORD</span>
+                                    </button> -->
+
+
+
+                                </div>
+
+                                
+                            </div>
+
+                           
+                           
+                            
+
+                             
+
+            
+                         <!--    <div class="col-lg-2">
+                                <div class="d-flex justify-content-end">
+                                    <form action="" method="post" class="d-flex">
+                                        {% csrf_token %}
+                                        <input type="search" class="form-control me-2" name="searchquery" value="{{ query }}">
+                                        <button class="btn btn-primary" name="search">Search</button>
+                                    </form>
+                                </div>
+                            </div>
+ -->
+                        </div>
+                                      
+                        
+
+                    </div>
+
+                  <div class="table-container card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="defaultdatatable" class="table table-bordered table-hover table-striped tables">
+                                <thead>
+                                    <tr>
+                                        <th>NAME</th>
+                                        <th>QR IMAGE</th>
+                                        <th>ACTIONS</th>
+                                       
+                                    </tr>
+                                </thead>
+                                <tbody>
+                              
+                                  {% for qr in qr_list %}
+
+                                    <tr>
+
+                                        <td style="vertical-align:middle;font-size:1.3rem;">{{ qr.name}}</td>
+                                        <td><img src="{{ qr.qr_code.url }}" alt="QR Code" width="50px" heigh="50px"></td>
+
+                             
+                                     
+                                        <td style="vertical-align:middle;">
+
+                                        <a class="material-symbols-outlined btn btn-success" data-bs-toggle="modal" data-bs-target="#view_qr_{{qr.id}}">
+                                        wysiwyg
+                                        </a>
+                                                                                          
+                                        <span class="material-symbols-outlined btn btn-primary edit-btn" data-bs-toggle="modal" data-bs-target="#updateQREmployeeModal_{{qr.id}}">
+                                            edit
+                                        </span>
+                                         
+
+                                        <span class="material-symbols-outlined btn btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModalQR_{{qr.id}}">
+                                                delete
+                                        </span>
+                                              
+                                                
+                                        </td>
+
+                                    </tr>
+
+                                      
+                            
+                        </div>
+
+
+
+
+</div>
+</div>
+
+
+
+
+
+<!-- update qr list modal -->
+<div class="modal fade" id="updateQREmployeeModal_{{ qr.id }}" tabindex="-1" aria-labelledby="updateQREmployeeModal_{{qr.id}}" aria-hidden="true">
+    <div class="modal-dialog">
+      <form action="" method="post">
+        {% csrf_token %}
+   
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="updateQREmployeeModal_{{ qr.id}}">Edit Employee</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id" value="{{qr.id}}">
+          <div class="">
+            <label for="name" >Name</label>
+            <input type="text" name="name" class="form-control" value="{{qr.name}}" id="name" required>
+          </div>
+          
+
+      
+     
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" name="update" data-user-id="{{ qr.id }}">Update Name</button>
+        </div>
+      </div>
+    </form>
+    </div>
+  </div>
+
+
+
+
+
+<!-- QR MODAL VIEW -->
+<div class="modal fade" id="view_qr_{{ qr.id }}" tabindex="-1" aria-labelledby="view_qr_{{qr.id}}" aria-hidden="true">
+    <div class="modal-dialog">
+      <form action="" method="post">
+        {% csrf_token %}
+   
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5"></h1>
+
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id" value="{{qr.id}}">
+  
+          <div class="container" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="image-container">
+                <!-- <img src="{{qr.qr_code.url }}" alt="profile" style="border-radius:10rem; border:1px solid rebeccapurple; width:5rem; height:5rem;"> -->
+
+            </div>
+
+            <div class="title-qr">
+              <h2 style="position:relative;top:1.5rem;">{{ qr.name }}</h2>
+            </div>
+
+            <div class="image-container2" style="text-align: center;">
+              <img src="{{ qr.qr_code.url }}" alt="QR Code" width="340px" height="340px">
+              <a class="qr_button" href="{{ qr.qr_code.url }}" download="qr_code_image.png">
+                  <button  type="button" style="margin-bottom:1rem;border-radius: .5rem;padding: .7rem 1rem;background-color: #5EA061;color:#FFFFFF;font-size:1.2rem;font-weight:bold;border:none;"><img style="height:1.7rem;margin-right:1rem;" src="{% static 'icons/cloud-computing.png' %}">Download QR</button>
+              </a>
+          </div>
+          
+          
+        </div>
+        
+
+      
+          
+
+      
+     
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+       
+        </div>
+      </div>
+    </form>
+    </div>
+  </div>
+
+
+
+
+   <!-- delete MODAL qr EMPLOYEE -->
+      <div class="modal fade" id="deleteEmployeeModalQR_{{qr.id}}" tabindex="-1" aria-labelledby="deleteEmployeeModalQR_{{qr.id}}" aria-hidden="true">
+        <div class="modal-dialog">
+          <form action="" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{qr.id}}">
+        
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="deleteEmployeeModalQR_{{qr.id}}">Delete Employee QR</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+             
+              <p>are you sure you want to delete - <span style="font-weight:bold;">{{qr.name}}?</span></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-danger" name="delete">delete student</button>
+            </div>
+          </div>
+        </form>
+        </div>
+      </div>
+
+
+
+  {% endfor %}
+
+
+
+
+
+<!-- ADD NEW QR Modal -->
+<div class="modal fade" id="addQRModal" tabindex="-1" aria-labelledby="addQRModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <form action="" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="addQRModal">EMPLOYEE QR LIST</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="">
+          <label for="firstname" >Name</label>
+          <input type="text" name="firstname" class="form-control" id="firstname" required>
+        </div>
+
+       
+
+      </div>
+
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary" name="addQR">SAVE RECORD</button>
+      </div>
+    </div>
+  </form>
+  </div>
+</div>
+
+
+
+
+<!-- ADD EXISTING QR Modal -->
+<div class="modal fade" id="addQRModalExisting" tabindex="-1" aria-labelledby="addQRModalExisting" aria-hidden="true">
+  <div class="modal-dialog">
+    <form action="" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="addQRModalExisting">EMPLOYEE QR LIST</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="">
+          <label for="firstname" >Name</label>
+          <input type="text" name="firstname" class="form-control" id="firstname" required>
+        </div>
+
+        <div class="">
+          <label for="qrimage">QR IMAGE</label>
+          <input type="file" name="qrimage" class="form-control" id="qrimage" accept="image/*" required>
+        </div>
+    
+
+
+       
+
+      </div>
+
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary" name="addQRExisting">SAVE RECORD</button>
+      </div>
+    </div>
+  </form>
+  </div>
+</div>
+
+    </tbody>
+    </table>
+
+
+</div>
+
+  <script>
+            $(document).ready(function() {
+                $('#defaultdatatable').DataTable({
+                    searching: true  
+                });
+            });
+  </script>
+          
+
+
+{% endblock content %}
+
+
+ {% endcomment %}
